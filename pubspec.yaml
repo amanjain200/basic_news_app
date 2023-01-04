@@ -38,6 +38,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   carousel_slider: ^4.0.0-nullsafety.0
   http:
+  webview_flutter: ^3.0.4
 
 dev_dependencies:
   flutter_test:

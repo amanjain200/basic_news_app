@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:aj_news/NewsView.dart';
 import 'package:aj_news/category.dart';
 import 'package:aj_news/model.dart';
 import 'package:carousel_slider/carousel_slider.dart';
@@ -31,37 +32,46 @@ class _homeState extends State<home> {
   ];
   bool isLoading = true;
   getNewByQuery(String query) async {
+    Map element;
+    int i=0;
     String url =
         "https://newsapi.org/v2/top-headlines?country=in&category=$query&apiKey=e84e40196a894644aaf94551630d1f37";
     Response response = await get(Uri.parse(url));
     Map data = jsonDecode(response.body);
     setState(() {
-      data["articles"].forEach((element) {
+      for(element in data["articles"]) {
+        try{
+        i++;
         NewsQueryModel newsQueryModel = new NewsQueryModel();
         newsQueryModel = NewsQueryModel.fromMap(element);
         newsModelListCarousel.add(newsQueryModel);
         setState(() {
           isLoading = false;
         });
-      });
+        if(i==5){
+          break;
+        }}catch(e){print(e);}
+      };
     });
   }
 
   getNewsOfIndia() async {
+    Map element;
     String url =
         "https://newsapi.org/v2/top-headlines?country=in&apiKey=e84e40196a894644aaf94551630d1f37";
     Response response = await get(Uri.parse(url));
     Map data = jsonDecode(response.body);
     setState(() {
-      data["articles"].forEach((element) {
+      for(element in data["articles"]) {
+        try{
         NewsQueryModel newsQueryModel = new NewsQueryModel();
         newsQueryModel = NewsQueryModel.fromMap(element);
         newsModelList.add(newsQueryModel);
         newsModelListCarousel.add(newsQueryModel);
         setState(() {
           isLoading = false;
-        });
-      });
+        });}catch(e){print(e);}
+      };
     });
   }
 
@@ -175,55 +185,61 @@ class _homeState extends State<home> {
                 items: newsModelListCarousel.map((instance) {
                   return Builder(
                     builder: (BuildContext context) {
+                      try{
                       return Container(
-                        child: Card(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15),
-                          ),
-                          child: Stack(
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(15),
-                                child: Image.network(
-                                  instance.newsImg,
-                                  fit: BoxFit.fill,
-                                  height: double.infinity,
-                                  width: double.infinity,
+                        child: InkWell(
+                          onTap: (){
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>NewsView(instance.newsUrl)));
+                          },
+                          child: Card(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Stack(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: Image.network(
+                                    instance.newsImg,
+                                    fit: BoxFit.fill,
+                                    height: double.infinity,
+                                    width: double.infinity,
+                                  ),
                                 ),
-                              ),
-                              Positioned(
-                                  bottom: 0,
-                                  left: 0,
-                                  right: 0,
-                                  child: Container(
-                                    //margin: EdgeInsets.symmetric(horizontal: 10),
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(15),
-                                        gradient: LinearGradient(
-                                          colors: [
-                                            Colors.black12,
-                                            Colors.black,
-                                          ],
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                        )),
+                                Positioned(
+                                    bottom: 0,
+                                    left: 0,
+                                    right: 0,
                                     child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 5, vertical: 10),
-                                      child: Text(
-                                        instance.newsHead,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.bold,
+                                      //margin: EdgeInsets.symmetric(horizontal: 10),
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(15),
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              Colors.black12,
+                                              Colors.black,
+                                            ],
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter,
+                                          )),
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 5, vertical: 10),
+                                        child: Text(
+                                          instance.newsHead,
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.bold,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ))
-                            ],
+                                    ))
+                              ],
+                            ),
                           ),
                         ),
-                      );
+                      );}catch(e){print(e); return Container();}
                     },
                   );
                 }).toList(),
@@ -253,72 +269,78 @@ class _homeState extends State<home> {
                       shrinkWrap: true,
                       itemCount: newsModelList.length,
                       itemBuilder: (context, index) {
+                        try{
                         return Container(
                             margin: EdgeInsets.symmetric(
                                 horizontal: 10, vertical: 5),
-                            child: Card(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(15),
-                              ),
-                              elevation: 1.0,
-                              child: Stack(
-                                children: [
-                                  ClipRRect(
-                                      borderRadius: BorderRadius.circular(15),
-                                      child: Image.network(
-                                        newsModelList[index].newsImg,
-                                        fit: BoxFit.fitWidth,
-                                        width: double.infinity,
-                                      )),
-                                  Positioned(
-                                    left: 0,
-                                    right: 0,
-                                    bottom: 0,
-                                    child: Container(
-                                      padding:
-                                          EdgeInsets.fromLTRB(15, 15, 10, 8),
-                                      decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(15),
-                                          gradient: LinearGradient(
-                                            colors: [
-                                              Colors.black12.withOpacity(0),
-                                              Colors.black,
-                                            ],
-                                            begin: Alignment.topCenter,
-                                            end: Alignment.bottomCenter,
-                                          )),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            newsModelList[index].newsHead,
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 20,
+                            child: InkWell(
+                              onTap: (){
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=>NewsView(newsModelList[index].newsUrl)));
+                              },
+                              child: Card(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                elevation: 1.0,
+                                child: Stack(
+                                  children: [
+                                    ClipRRect(
+                                        borderRadius: BorderRadius.circular(15),
+                                        child: Image.network(
+                                          newsModelList[index].newsImg,
+                                          fit: BoxFit.fitWidth,
+                                          width: double.infinity,
+                                        )),
+                                    Positioned(
+                                      left: 0,
+                                      right: 0,
+                                      bottom: 0,
+                                      child: Container(
+                                        padding:
+                                            EdgeInsets.fromLTRB(15, 15, 10, 8),
+                                        decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(15),
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                Colors.black12.withOpacity(0),
+                                                Colors.black,
+                                              ],
+                                              begin: Alignment.topCenter,
+                                              end: Alignment.bottomCenter,
+                                            )),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              newsModelList[index].newsHead,
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 20,
+                                              ),
                                             ),
-                                          ),
-                                          Text(
-                                            newsModelList[index]
-                                                        .newsDes
-                                                        .length >
-                                                    50
-                                                ? "${newsModelList[index].newsDes.substring(0, 50)}..."
-                                                : newsModelList[index].newsDes,
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 12,
-                                            ),
-                                          )
-                                        ],
+                                            Text(
+                                              newsModelList[index]
+                                                          .newsDes
+                                                          .length >
+                                                      50
+                                                  ? "${newsModelList[index].newsDes.substring(0, 50)}..."
+                                                  : newsModelList[index].newsDes,
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: 12,
+                                              ),
+                                            )
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                  )
-                                ],
+                                    )
+                                  ],
+                                ),
                               ),
-                            ));
+                            ));}catch(e){print(e); return Container();}
                       }),
                   Container(
                     padding: EdgeInsets.fromLTRB(0, 10, 0, 5),
